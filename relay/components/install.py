@@ -1,4 +1,4 @@
-import subprocess
+from subprocess import Popen, PIPE, STDOUT
 import getpass
 
 DOCKERHUB_USER = "ohtuprojtinymlaas"
@@ -11,22 +11,22 @@ def install_inference(device: dict, model: dict):
     }
     installer = device["installer"]
     try:
-        installers[installer]()
+        installers[installer](device, model)
     except KeyError:
         return False
     finally:
         return True
 
 
-def arduino_installer():
+def arduino_installer(device: dict, model: dict):
     """Install the wanted model to a Arduino
     """
 
-    port = get_device_port("Nano")
-    image = f"{DOCKERHUB_USER}/nano33ble"
-    subprocess.run([f"docker pull {image}"], shell=True)
-    cmd = f"docker run --privileged {image} upload -p {port} --fqbn arduino:mbed_nano:nano33ble template"
-    subprocess.run([cmd], shell=True)
+    port = get_device_port(device["serial"])
+    # image = f"{DOCKERHUB_USER}/nano33ble"
+    # subprocess.run([f"docker pull {image}"], shell=True)
+    # cmd = f"docker run --privileged {image} upload -p {port} --fqbn arduino:mbed_nano:nano33ble template"
+    # subprocess.run([cmd], shell=True)
 
 
 def upload_rpi():
@@ -40,5 +40,15 @@ def upload_rpi():
     subprocess.run([cmd], shell=True)
 
 
-def get_device_port(device_name: str):
-    return "/dev/ttyACM0"
+def get_device_port(device_serial: str):
+    p = Popen("ls -la /dev/serial/by-id/", shell=True,
+              stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+    output = p.stdout.read()
+
+    out = output.decode('utf-8').split('\n')
+
+    for row in out:
+        if device_serial in row:
+            row = row.split('/')
+            port = '/dev/' + row[-1]
+    return port
