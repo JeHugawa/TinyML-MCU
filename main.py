@@ -17,7 +17,7 @@ def install():
         model = res["model"]
 
         if not install_inference(device, model):
-            return f"Device \"{device['name']}\" is not supported"
+            return f"Device with installer \"{device['installer']}\" is not supported"
 
         return 'Success', 200
     else:

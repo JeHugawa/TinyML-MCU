@@ -1,10 +1,11 @@
+import docker
 from subprocess import Popen, PIPE, STDOUT
 import getpass
 
 DOCKERHUB_USER = "ohtuprojtinymlaas"
 
 
-def install_inference(device: dict, model: dict):
+def install_inference(device: dict, model: str):
     """Select the appropriate installer for the device
     and call that installer"""
     installers = {
@@ -16,19 +17,26 @@ def install_inference(device: dict, model: dict):
         installers[installer](device, model)
     except KeyError:
         return False
+    except ValueError:
+        return False
     finally:
         return True
 
 
-def arduino_installer(device: dict, model: dict):
+def arduino_installer(device: dict, compiled_model: str):
     """Install the wanted model to a Arduino
     """
 
     port = get_device_port(device["serial"])
-    # image = f"{DOCKERHUB_USER}/nano33ble"
-    # subprocess.run([f"docker pull {image}"], shell=True)
-    # cmd = f"docker run --privileged {image} upload -p {port} --fqbn arduino:mbed_nano:nano33ble template"
-    # subprocess.run([cmd], shell=True)
+    with open("arduino/template/model.cpp", "w") as file:
+        file.write(compiled_model)
+    client = docker.from_env()
+    client.images.build(path="arduino/", tag="nano33ble")
+    client.run(
+        image="nano33ble",
+        command=f"upload -p {port} --fqbn arduino:mbed_nano:nano33ble template",
+        privileged=True
+    )
 
 
 def upload_rpi():
