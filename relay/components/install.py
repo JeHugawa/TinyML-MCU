@@ -5,6 +5,8 @@ DOCKERHUB_USER = "ohtuprojtinymlaas"
 
 
 def install_inference(device: dict, model: dict):
+    """Select the appropriate installer for the device
+    and call that installer"""
     installers = {
         "RPI": upload_rpi,
         "Arduino IDE": arduino_installer
@@ -41,6 +43,12 @@ def upload_rpi():
 
 
 def get_device_port(device_serial: str):
+    """Find the wanted devices port based on its serial number.
+
+    Does this with the help of the /dev/serial/by_id/ directory,
+    which contains this information as a symlink.
+    """
+
     p = Popen("ls -la /dev/serial/by-id/", shell=True,
               stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     output = p.stdout.read()
