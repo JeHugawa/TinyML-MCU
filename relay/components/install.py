@@ -4,10 +4,10 @@ import getpass
 DOCKERHUB_USER = "ohtuprojtinymlaas"
 
 
-def install_inference(device_name : str):
+def install_inference(device_name: str, device_serial: str):
     upload_funcs = {
-        "RPI" : upload_rpi, 
-        "Nano" : upload
+        "RPI": upload_rpi,
+        "Arduino": upload
     }
     if device_name not in upload_funcs.keys():
         return False
@@ -17,7 +17,7 @@ def install_inference(device_name : str):
 
 def upload():
     "Uploads compiled sketch in docker"
-    #Add sudo if docker permission errors
+    # Add sudo if docker permission errors
     port = get_device_port("Nano")
     image = f"{DOCKERHUB_USER}/nano33ble"
     subprocess.run([f"docker pull {image}"], shell=True)
@@ -27,8 +27,8 @@ def upload():
 
 def upload_rpi():
     "Uploads compiled person detection uf2 file to device. The device must be in the USB Mass Storage Mode and `device_path` should be the absolute path at which the device is mounted at."
-    #This can actually get mounted elsewhere, perhaps you could find the path by looking for the files that exist in that directory
-    device_path = f"/media/{getpass.getuser()}/RPI-RP2" 
+    # This can actually get mounted elsewhere, perhaps you could find the path by looking for the files that exist in that directory
+    device_path = f"/media/{getpass.getuser()}/RPI-RP2"
     docker_img = f"{DOCKERHUB_USER}/pico"
     subprocess.run([f"docker pull {docker_img}"], shell=True)
     # this mounts the device_path inside the container and copies the uf2 file from the container to device_path
@@ -36,6 +36,5 @@ def upload_rpi():
     subprocess.run([cmd], shell=True)
 
 
-def get_device_port(device_name:str):
+def get_device_port(device_name: str):
     return "/dev/ttyACM0"
-
