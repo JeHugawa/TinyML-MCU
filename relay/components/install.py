@@ -4,20 +4,24 @@ import getpass
 DOCKERHUB_USER = "ohtuprojtinymlaas"
 
 
-def install_inference(device_name: str, device_serial: str):
-    upload_funcs = {
+def install_inference(device: dict, model: dict):
+    installers = {
         "RPI": upload_rpi,
-        "Arduino": upload
+        "Arduino IDE": arduino_installer
     }
-    if device_name not in upload_funcs.keys():
+    installer = device["installer"]
+    try:
+        installers[installer]()
+    except KeyError:
         return False
-    upload_funcs[device_name]()
-    return True
+    finally:
+        return True
 
 
-def upload():
-    "Uploads compiled sketch in docker"
-    # Add sudo if docker permission errors
+def arduino_installer():
+    """Install the wanted model to a Arduino
+    """
+
     port = get_device_port("Nano")
     image = f"{DOCKERHUB_USER}/nano33ble"
     subprocess.run([f"docker pull {image}"], shell=True)

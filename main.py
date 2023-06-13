@@ -7,17 +7,17 @@ app = Flask(__name__)
 port = 5000
 
 
-@app.route('/install', methods=['POST'])
+@app.route('/install/', methods=['POST'])
 def install():
     if request.method == 'POST':
         if "device" not in request.get_json():
             return "No device in request", 400
         res = request.get_json()
-        device_serial = res["device_serial"]
-        vendor = res["manufacturer"]
+        device = res["device"]
+        model = res["model"]
 
-        if not install_inference(vendor, device_serial):
-            return f"Device \"{vendor}\" is not supported"
+        if not install_inference(device, model):
+            return f"Device \"{device['name']}\" is not supported"
 
         return 'Success', 200
     else:
