@@ -1,5 +1,6 @@
 from flask import Flask, abort, request, jsonify
-from components.install import get_device_port, install_inference
+from relay.components.install import get_device_port, install_inference
+from relay.tflm_hello_world.observing import read_person_detection_from_serial
 
 
 app = Flask(__name__)
