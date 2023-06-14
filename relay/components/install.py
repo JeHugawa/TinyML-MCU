@@ -28,7 +28,7 @@ def arduino_installer(device: dict, compiled_model: str):
     """
 
     port = get_device_port(device["serial"])
-    with open("arduino/template/person_detect_model_data.cpp", "w") as file:
+    with open("arduino/template/model.cpp", "w") as file:
         file.write(compiled_model)
     client = docker.from_env()
     client.images.build(path="arduino/", tag="nano33ble")
