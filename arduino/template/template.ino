@@ -19,7 +19,7 @@ limitations under the License.
 #include "image_provider.h"
 #include "main_functions.h"
 #include "model_settings.h"
-#include "model.h"
+#include "person_detect_model_data.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_log.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
