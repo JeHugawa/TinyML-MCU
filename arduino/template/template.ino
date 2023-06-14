@@ -19,11 +19,10 @@ limitations under the License.
 #include "image_provider.h"
 #include "main_functions.h"
 #include "model_settings.h"
-#include "person_detect_model_data.h"
+#include "model.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_log.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
-#include "tensorflow/lite/micro/all_ops_resolver.h"
 #include "tensorflow/lite/micro/system_setup.h"
 #include "tensorflow/lite/schema/schema_generated.h"
 
@@ -41,7 +40,7 @@ TfLiteTensor* input = nullptr;
 // signed value.
 
 // An area of memory to use for input, output, and intermediate arrays.
-constexpr int kTensorArenaSize = 182 * 1024;
+constexpr int kTensorArenaSize = 136 * 1024;
 // Keep aligned to 16 bytes for CMSIS
 alignas(16) uint8_t tensor_arena[kTensorArenaSize];
 }  // namespace
@@ -52,7 +51,7 @@ void setup() {
 
   // Map the model into a usable data structure. This doesn't involve any
   // copying or parsing, it's a very lightweight operation.
-  model = tflite::GetModel(model_tflite);
+  model = tflite::GetModel(g_person_detect_model_data);
   if (model->version() != TFLITE_SCHEMA_VERSION) {
     MicroPrintf(
         "Model provided is schema version %d not equal "
@@ -67,19 +66,14 @@ void setup() {
   // incur some penalty in code space for op implementations that are not
   // needed by this graph.
   //
+  // tflite::AllOpsResolver resolver;
   // NOLINTNEXTLINE(runtime-global-variables)
-  static tflite::MicroMutableOpResolver<11> micro_op_resolver;
-  micro_op_resolver.AddMaxPool2D();
+  static tflite::MicroMutableOpResolver<5> micro_op_resolver;
+  micro_op_resolver.AddAveragePool2D();
   micro_op_resolver.AddConv2D();
   micro_op_resolver.AddDepthwiseConv2D();
   micro_op_resolver.AddReshape();
   micro_op_resolver.AddSoftmax();
-  micro_op_resolver.AddQuantize();
-  micro_op_resolver.AddShape();
-  micro_op_resolver.AddStridedSlice();
-  micro_op_resolver.AddPack();
-  micro_op_resolver.AddFullyConnected();
-  micro_op_resolver.AddDequantize();
 
   // Build an interpreter to run the model with.
   // NOLINTNEXTLINE(runtime-global-variables)
