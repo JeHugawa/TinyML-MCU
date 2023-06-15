@@ -14,8 +14,11 @@ def get_device_port(device_serial: str):
 
     out = output.decode('utf-8').split('\n')
 
+    port = None
+
     for row in out:
         if device_serial in row:
             row = row.split('/')
             port = '/dev/' + row[-1]
+    
     return port
