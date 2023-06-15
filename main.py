@@ -1,5 +1,6 @@
 from flask import Flask, abort, request, jsonify
 from relay.components.install import get_device_port, install_inference
+from relay.components.device import get_device_port
 from relay.tflm_hello_world.observing import read_person_detection_from_serial
 
 
@@ -24,13 +25,14 @@ def install():
         abort(400)
 
 
-@app.route('/prediction', methods=['GET'])
+@app.route('/prediction/', methods=['GET'])
 def get_prediction():
-    device = request.args.get("device", None)
+    device = request.get_json()["device"]["serial"]
     if not device:
         return "No device selected in request", 400
-    port = get_device_port(device)
-    pred = read_person_detection_from_serial(port)
+    device_port = get_device_port(device)
+
+    pred = read_person_detection_from_serial(device_port)
     if not pred:
         return "Failed to read prediction from device", 404
     return jsonify(pred)
