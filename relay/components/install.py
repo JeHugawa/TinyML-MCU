@@ -2,7 +2,7 @@ import docker
 from subprocess import Popen, PIPE, STDOUT
 import getpass
 
-from device import get_device_port
+from .device import get_device_port
 
 DOCKERHUB_USER = "ohtuprojtinymlaas"
 
