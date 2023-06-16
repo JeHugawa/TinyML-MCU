@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  bridge:
+    build:
+      context: .
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/bus/usb:/dev/bus/usb
+      - /dev/serial:/dev/serial
+    privileged: true
+    ports:
+      - 5000:8080    

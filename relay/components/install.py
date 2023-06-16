@@ -35,14 +35,19 @@ def arduino_installer(device: dict, compiled_model: str):
     client = docker.from_env()
     print("Beginning building of image...")
     try:
-        client.images.build(path="arduino/", tag="nano33ble")
+        res = client.images.build(path="arduino/", tag="nano33ble")
+        print(res)
     except docker.errors.BuildError as e:
         print("Error while building", e)
-    client.containers.run(
-        image="nano33ble",
-        command=f"upload -p {port} --fqbn arduino:mbed_nano:nano33ble template",
-        privileged=True
-    )
+    try:
+        res = client.containers.run(
+            image="nano33ble",
+            command=f"upload -p {port} --fqbn arduino:mbed_nano:nano33ble template",
+            privileged=True
+        )
+        print(res)
+    except Exception as e:
+        print(e)
 
 
 def upload_rpi():
@@ -54,5 +59,3 @@ def upload_rpi():
     # this mounts the device_path inside the container and copies the uf2 file from the container to device_path
     cmd = f"docker run --rm -v {device_path}:/opt/mount --entrypoint cp {docker_img} person_detection_screen_int8.uf2 /opt/mount/app.uf2"
     subprocess.run([cmd], shell=True)
-
-

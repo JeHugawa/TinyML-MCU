@@ -8,6 +8,6 @@ COPY main.py .
 COPY relay relay
 COPY requirements.txt .
 
-RUN apk add --no-cache python3 py3-pip && pip install -r requirements.txt
+RUN apk add --no-cache usbutils python3 py3-pip && pip install -r requirements.txt
 
 CMD ["waitress-serve", "main:app"]
