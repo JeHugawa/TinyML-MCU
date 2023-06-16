@@ -1,5 +1,4 @@
 import docker
-from subprocess import Popen, PIPE, STDOUT
 import getpass
 
 from .device import get_device_port
@@ -30,7 +29,7 @@ def arduino_installer(device: dict, compiled_model: str):
     """
 
     port = get_device_port(device["serial"])
-    with open("arduino/template/model.cpp", "w") as file:
+    with open("arduino/template/target_model.cpp", "w") as file:
         file.write(compiled_model)
     client = docker.from_env()
     print("Beginning building of image...")

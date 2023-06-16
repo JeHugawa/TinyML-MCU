@@ -17,12 +17,13 @@ limitations under the License.
 
 #include "detection_responder.h"
 #include "image_provider.h"
-#include "main_functions.h"
 #include "model_settings.h"
-#include "model.h"
+#include "main_functions.h"
+#include "target_model.h"
+#include "output_handler.h"
+#include "tensorflow/lite/micro/all_ops_resolver.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_log.h"
-#include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/micro/system_setup.h"
 #include "tensorflow/lite/schema/schema_generated.h"
 
@@ -31,16 +32,9 @@ namespace {
 const tflite::Model* model = nullptr;
 tflite::MicroInterpreter* interpreter = nullptr;
 TfLiteTensor* input = nullptr;
+TfLiteTensor* output = nullptr;
 
-// In order to use optimized tensorflow lite kernels, a signed int8_t quantized
-// model is preferred over the legacy unsigned model format. This means that
-// throughout this project, input images must be converted from unisgned to
-// signed format. The easiest and quickest way to convert from unsigned to
-// signed 8-bit integers is to subtract 128 from the unsigned value to get a
-// signed value.
-
-// An area of memory to use for input, output, and intermediate arrays.
-constexpr int kTensorArenaSize = 136 * 1024;
+constexpr int kTensorArenaSize = 182 * 1024;
 // Keep aligned to 16 bytes for CMSIS
 alignas(16) uint8_t tensor_arena[kTensorArenaSize];
 }  // namespace
@@ -60,25 +54,13 @@ void setup() {
     return;
   }
 
-  // Pull in only the operation implementations we need.
-  // This relies on a complete list of all the ops needed by this graph.
-  // An easier approach is to just use the AllOpsResolver, but this will
-  // incur some penalty in code space for op implementations that are not
-  // needed by this graph.
-  //
-  // tflite::AllOpsResolver resolver;
+  // This pulls in all the operation implementations we need.
   // NOLINTNEXTLINE(runtime-global-variables)
-  static tflite::MicroMutableOpResolver<5> micro_op_resolver;
-  micro_op_resolver.AddAveragePool2D();
-  micro_op_resolver.AddConv2D();
-  micro_op_resolver.AddDepthwiseConv2D();
-  micro_op_resolver.AddReshape();
-  micro_op_resolver.AddSoftmax();
+  static tflite::AllOpsResolver resolver;
 
   // Build an interpreter to run the model with.
-  // NOLINTNEXTLINE(runtime-global-variables)
   static tflite::MicroInterpreter static_interpreter(
-      model, micro_op_resolver, tensor_arena, kTensorArenaSize);
+      model, resolver, tensor_arena, kTensorArenaSize);
   interpreter = &static_interpreter;
 
   // Allocate memory from the tensor_arena for the model's tensors.
@@ -88,8 +70,9 @@ void setup() {
     return;
   }
 
-  // Get information about the memory area to use for the model's input.
+  // Obtain pointers to the model's input and output tensors.
   input = interpreter->input(0);
+  output = interpreter->output(0);
 
   if ((input->dims->size != 4) || (input->dims->data[0] != 1) ||
       (input->dims->data[1] != kNumRows) ||
@@ -100,27 +83,22 @@ void setup() {
   }
 }
 
-// The name of this function is important for Arduino compatibility.
 void loop() {
-  // Get image from provider.
+  // Get image from camera
   if (kTfLiteOk != GetImage(input)) {
     MicroPrintf("Image capture failed.");
-  }
+  };
 
-  // Run the model on this input and make sure it succeeds.
   if (kTfLiteOk != interpreter->Invoke()) {
     MicroPrintf("Invoke failed.");
-    return;
-  }
+  };
 
-  TfLiteTensor* output = interpreter->output(0);
+  int8_t target_score = output->data.uint8[kTargetIndex];
+  int8_t not_target_score = output->data.uint8[kNotTargetIndex];
 
-  // Process the inference results.
-  int8_t person_score = output->data.uint8[kPersonIndex];
-  int8_t no_person_score = output->data.uint8[kNotAPersonIndex];
-  float person_score_f =
-      (person_score - output->params.zero_point) * output->params.scale;
-  float no_person_score_f =
-      (no_person_score - output->params.zero_point) * output->params.scale;
-  RespondToDetection(person_score_f, no_person_score_f);
+  float target_score_f =
+      (target_score - output->params.zero_point) * output->params.scale;
+  float not_target_score_f =
+      (not_target_score - output->params.zero_point) * output->params.scale;
+  RespondToDetection(target_score_f, not_target_score_f);
 }
