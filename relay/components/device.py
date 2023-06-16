@@ -20,5 +20,5 @@ def get_device_port(device_serial: str):
         if device_serial in row:
             row = row.split('/')
             port = '/dev/' + row[-1]
-    
+
     return port
