@@ -80,4 +80,4 @@ Then, replace the the old file with this new generated file.
 
 If you want to rename the model, you need to also change the name of the models header file [target_model.h](./template/target_model.h) to the same name and change the headerfile name in [template.ino](./template/template.ino).
 
-:warning: Be careful when renaming the model. For some models the model can not be named something that starts with the word *model*. For this reason, it is adviced to always name the C-array file so that it does not start with *model*.
+:warning: NOTE! Be careful when renaming the model. For some models the model can not be named something that starts with the word *model*. For this reason, it is adviced to always name the C-array file so that it does not start with *model*. ⚠️
