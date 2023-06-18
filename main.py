@@ -1,6 +1,6 @@
 from flask import Flask, abort, request, jsonify
-from relay.components.install import get_device_port, install_inference
-from relay.components.device import get_device_port
+from relay.components.install import install_inference
+from relay.components.device import get_device_port, get_connected_devices
 from relay.observing import read_prediction_from_port
 
 
@@ -33,11 +33,20 @@ def get_prediction():
     device_port = get_device_port(device)
 
     pred = read_prediction_from_port(device_port)
-   
+
     if not pred:
         return "Failed to read prediction from device", 404
-    
-    return pred#jsonify(pred)
+
+    return pred  # jsonify(pred)
+
+
+@app.route('/devices/', methods=['GET'])
+def get_devices():
+    devices = get_connected_devices()
+
+    response = {"devices": devices}
+
+    return jsonify(response), 200
 
 
 if __name__ == "__main__":
