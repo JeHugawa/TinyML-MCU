@@ -49,5 +49,10 @@ def get_devices():
     return jsonify(response), 200
 
 
+@app.route('/health/', methods=['GEt'])
+def health():
+    return 'Online', 200
+
+
 if __name__ == "__main__":
     app.run()
