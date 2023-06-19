@@ -20,7 +20,7 @@ def install():
         if not install_inference(device, model):
             return f"Device with installer \"{device['installer']}\" is not supported"
 
-        return 'Success', 200
+        return 'Success', 201
     else:
         abort(400)
 
