@@ -20,7 +20,8 @@ monitor.filter_by("tty")
 
 
 devices = []  # will be in mode /dev/ttyACM0:/dev/ttyACM0 for each device
-volumes = ["/dev/bus/usb:/dev/bus/usb"]
+volumes = ["/dev/bus/usb:/dev/bus/usb",
+           "/dev/serial:/dev/serial"]
 
 dclient = docker.from_env()
 cont = dclient.containers.get('tinyml-mcu-bridge-1')

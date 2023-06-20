@@ -54,6 +54,7 @@ services:
       # - "/dev/ttyACM0:/dev/ttyACM0"
     volumes:
       - "/dev/bus/usb:/dev/bus/usb"
+      - "/dev/serial:/dev/serial"
     runtime: sysbox-runc
     ports:
       - 5000:8080
