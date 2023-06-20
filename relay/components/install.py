@@ -32,7 +32,6 @@ def arduino_installer(device: dict, compiled_model: str):
     with open("arduino/template/target_model.cpp", "w") as file:
         file.write(compiled_model)
     client = docker.from_env()
-    print("Beginning building of image...")
     try:
         res = client.images.build(path="arduino/", tag="nano33ble")
         print(res)
@@ -42,7 +41,7 @@ def arduino_installer(device: dict, compiled_model: str):
         res = client.containers.run(
             image="nano33ble",
             command=f"upload -p {port} --fqbn arduino:mbed_nano:nano33ble template",
-            privileged=True
+            devices=[f"{port}:{port}:rw"]
         )
         print(res)
     except Exception as e:

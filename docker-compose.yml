@@ -4,10 +4,11 @@ services:
   bridge:
     build:
       context: .
+    # If you have devices connected to the relay, add them here
+    # devices:
+      # - "/dev/ttyACM0:/dev/ttyACM0"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /dev/bus/usb:/dev/bus/usb
-      - /dev/serial:/dev/serial
-    privileged: true
+      - "/dev/bus/usb:/dev/bus/usb"
+    runtime: sysbox-runc
     ports:
-      - 5000:8080    
+      - 5000:8080
