@@ -17,8 +17,41 @@ def read_prediction_from_port(port:str):
         with Serial(port, baudrate=19200, timeout=1) as ser:
             output = ser.readline().decode("ascii").strip() # "Person score: 60.54% No person score: 39.45%"
             parts = output.split(" ")
+            
+            # Scaling for demo purposes (epochs: 50, batch size: 50, dataset: parking slot (id: 3)
 
-            return {"1":float(parts[2][:-1]), "0":float(parts[6][:-1])}
+            is_target = float(parts[2][:-1])
+            is_not_target = float(parts[6][:-1])
+            
+
+            is_target = is_target / 3.698 #369.8
+            is_not_target = is_not_target / 5.4188 #541.88 #537.62
+            
+            is_target_in_two_decimals = int(is_target * 100) / 100
+            is_not_target_in_two_decimals = int(is_not_target * 100) / 100
+            
+            return {"1":is_target_in_two_decimals, "0":is_not_target_in_two_decimals}
+            
+            # Implementation using softmax for any model:
+            '''
+            is_target = float(parts[2][:-1])
+            is_not_target = float(parts[6][:-1])
+            
+            soft_max_is_not_target = np.exp(is_not_target) / (np.exp(is_not_target) + np.exp(is_target)) * 10000
+            
+            soft_max_is_target = np.exp(is_target) / (np.exp(is_not_target) + np.exp(is_target)) * 10000
+            
+            soft_max_is_target = int(soft_max_is_target) / 100
+            
+            soft_max_is_not_target = int(soft_max_is_not_target) / 100
+            
+            return {"1":soft_max_is_target, "0":soft_max_is_not_target}
+            
+            '''
+            
+
+            # old return without scaling
+            # return {"1":float(parts[2][:-1]), "0":float(parts[6][:-1])}
 
     except Exception as the_exception:
         print(the_exception)
