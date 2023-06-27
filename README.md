@@ -1,4 +1,4 @@
-# TinyML-MCU
+`# TinyML-MCU
 
 Code for [TinyMLaaS](https://github.com/JeHugawa/TinyMLaaS-main) MCU devices.
 
@@ -70,6 +70,14 @@ There is also a provided script to check for added Arduinos. The script [docker-
 chmod u+x docker-container-restarter.py
 ./docker-container-restarter.py
 ```
+
+There might be problems with serial port permissions. As a solution, give permissions to the port for all users with
+
+```bash
+chmod 777 /path/to/port
+```
+
+Note that this will most likely require root priviledges.
 
 ## Microcontrollers
 
