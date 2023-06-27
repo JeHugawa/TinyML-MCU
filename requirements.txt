@@ -13,6 +13,7 @@ MarkupSafe==2.1.2
 pyserial==3.5
 PyYAML==6.0
 requests==2.31.0
+packaging==2.31
 pyserial
 urllib3==2.0.2
 waitress==2.1.2
