@@ -1,4 +1,4 @@
-`# TinyML-MCU
+# TinyML-MCU
 
 Code for [TinyMLaaS](https://github.com/JeHugawa/TinyMLaaS-main) MCU devices.
 
@@ -78,6 +78,26 @@ chmod 777 /path/to/port
 ```
 
 Note that this will most likely require root priviledges.
+
+## Serving the application to internet
+
+### Webserver
+
+If you already have a webserver setup, such as [Apache2](https://httpd.apache.org/) or [Nginx](https://www.nginx.com/), with which you can serve the application to the internet, add a new proxy for the bridge according to the style of the webserver.
+
+### Port forwarding
+
+Another way is to add a new port forwarding setting to the host machine to port 5000 in the router.
+
+### Ngrok
+
+However, these might not be usable by everyone. With [Ngrok](https://ngrok.com/), you can serve the bridge to the internet without having access to the local router. 
+
+1. [Install ngrok](https://ngrok.com/download)
+2. Serve the application with
+```bash
+ngrok http 5000
+```
 
 ## Microcontrollers
 
